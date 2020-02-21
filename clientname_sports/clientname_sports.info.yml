@@ -1,0 +1,5 @@
+name: 'CLIENTNAME Sports'
+type: module
+description: 'CLIENTNAME Sports support'
+core: 8.x
+package: 'CLIENTNAME'

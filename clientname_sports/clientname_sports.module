@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains CLIENTNAME_sports.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function CLIENTNAME_sports_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the CLIENTNAME_sports module.
+    case 'help.page.CLIENTNAME_sports':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('CLIENTNAME Sports support') . '</p>';
+      return $output;
+
+    default:
+  }
+}

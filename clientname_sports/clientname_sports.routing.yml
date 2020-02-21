@@ -1,0 +1,8 @@
+
+CLIENTNAME_sports.custom_sports_order_form:
+  path: '/admin/config/CLIENTNAME_sports/order/{type}'
+  defaults:
+    _form: '\Drupal\CLIENTNAME_sports\Form\CustomSportsOrderForm'
+    _title: 'Re-order sorting for Sports nodes'
+  requirements:
+    _permission: 'access administration pages'

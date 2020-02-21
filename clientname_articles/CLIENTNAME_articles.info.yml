@@ -1,0 +1,6 @@
+name: 'CLIENTNAME Articles'
+type: module
+description: 'Article support.'
+core: 8.x
+package: 'CLIENTNAME'
+dependencies:

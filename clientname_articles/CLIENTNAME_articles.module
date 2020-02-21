@@ -1,0 +1,93 @@
+<?php
+
+/**
+ * @file
+ * Module file for CLIENTNAME Articles.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\media\Entity\Media;
+use Drupal\file\Entity\File;
+use Drupal\image\Entity\ImageStyle;
+
+/**
+ * Implements hook_theme().
+ */
+function CLIENTNAME_articles_theme($existing, $type, $theme, $path) {
+  return [
+    'CLIENTNAME_more_CLIENTNAME_sport_block' => [
+      'template' => 'block--CLIENTNAME-more-CLIENTNAME-sport-block',
+      'variables' => [
+        'title' => NULL,
+        'link_list' => NULL,
+        'link_stack_classes' => 'link-stack-block',
+        'no_padding' => FALSE,
+        'title_alter' => FALSE,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function CLIENTNAME_articles_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (in_array($form_id, ['node_article_form', 'node_article_edit_form'])) {
+    $form['field_external_id']['widget']['#disabled'] = TRUE;
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function CLIENTNAME_articles_preprocess_node(&$variables) {
+  $node = $variables['node'];
+  if ($node->getType() == 'article' && ($variables['view_mode'] == 'default' || $variables['view_mode'] == 'card_horizontal')) {
+
+    // Byline.
+    $field_author = $node->get('field_author')->referencedEntities()[0] ?? NULL;
+    if (!empty($field_author)) {
+      $variables['byline']['text'] = $field_author->get('name')->getValue()[0]['value'];
+      $tid = $field_author->id();
+      $variables['byline']['url'] = \Drupal::service('path.alias_manager')->getAliasByPath('/taxonomy/term/' . $tid);
+    }
+
+    // Categories.
+    $categories = [];
+    $field_categories = $node->get('field_tags')->referencedEntities();
+    foreach ($field_categories as $category) {
+      $name = $category->get('name')->value;
+      $tid = $category->id();
+      $url = \Drupal::service('path.alias_manager')->getAliasByPath('/taxonomy/term/' . $tid);
+      $categories[] = [
+        'text' => $name,
+        'url' => $url,
+      ];
+    }
+    $variables['tags'] = $categories;
+
+    // Main image.
+    $field_image = $node->get('field_image')->getValue();
+    if (count($field_image)) {
+      $media = Media::load($field_image[0]['target_id']);
+      $media_field = $media->get('field_media_image')->first()->getValue();
+      $file = File::load($media_field['target_id']);
+      if ($file) {
+        $image_uri = $file->getFileUri();
+        $url = ImageStyle::load('crop_16_9_large_1x')->buildUrl($image_uri);
+        $variables['article_image']['src'] = $url;
+        $variables['article_image']['alt'] = $media_field['alt'];
+        $variables['article_image']['style'] = 'primary';
+      }
+    }
+
+    // Schools.
+    $schools = $node->get('field_schools')->referencedEntities();
+    $variables['schools'] = [];
+    if (!empty($schools)) {
+      foreach ($schools as $school) {
+        $variables['schools'][] = $school->label();
+      }
+    }
+  }
+}
